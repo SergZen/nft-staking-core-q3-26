@@ -1,8 +1,5 @@
-use anchor_lang::prelude::*;
+pub mod config;
+pub mod oracle;
 
-#[account]
-#[derive(InitSpace)]
-pub struct Counter {
-    pub count: u64,
-    pub authority: Pubkey,
-}
+pub use config::*;
+pub use oracle::*;
