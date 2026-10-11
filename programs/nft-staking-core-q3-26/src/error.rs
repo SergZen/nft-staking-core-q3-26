@@ -19,5 +19,9 @@ pub enum StakingError {
     #[msg("Invalid number")]
     InvalidNumber,
     #[msg("Already updated")]
-    AlreadyUpdated,    
+    AlreadyUpdated,
+    #[msg("Invalid new owner address")]
+    InvalidNewOwner,
+    #[msg("Cannot transfer NFT to yourself")]
+    SameOwner,   
 }

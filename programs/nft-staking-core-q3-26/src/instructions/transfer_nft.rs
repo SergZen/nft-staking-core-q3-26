@@ -39,8 +39,13 @@ impl<'info> TransferNft<'info> {
         let base_asset = BaseAssetV1::try_from(&self.nft.to_account_info())?;
         require!(base_asset.owner == self.owner.key(), StakingError::InvalidOwner);
         require!(base_asset.update_authority == UpdateAuthority::Collection(self.collection.key()), StakingError::InvalidAuthority);
+
         let base_collection = BaseCollectionV1::try_from(&self.collection.to_account_info())?;
         require!(base_collection.update_authority == self.update_authority.key(), StakingError::InvalidAuthority);
+
+        require!(self.new_owner.key() != Pubkey::default(), StakingError::InvalidNewOwner);
+
+        require!(self.new_owner.key() != self.owner.key(), StakingError::SameOwner);
 
         TransferV1CpiBuilder::new(&self.mpl_core_program.to_account_info())
             .asset(&self.nft.to_account_info())

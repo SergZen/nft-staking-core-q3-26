@@ -1,8 +1,9 @@
 use anchor_lang::prelude::*;
 use mpl_core::{
-    ID as MPL_CORE_ID,
-    instructions::CreateV2CpiBuilder,
+    ID as MPL_CORE_ID, accounts::BaseCollectionV1, instructions::CreateV2CpiBuilder,
 };
+
+use crate::error::StakingError;
 
 #[derive(Accounts)]
 pub struct Mint<'info> {
@@ -26,6 +27,8 @@ pub struct Mint<'info> {
 }
 impl<'info> Mint<'info> {
     pub fn mint_nft(&mut self, name: String, uri: String, bumps: &MintBumps) -> Result<()> {
+        let base_collection = BaseCollectionV1::try_from(&self.collection.to_account_info())?;
+        require!(base_collection.update_authority == self.update_authority.key(), StakingError::InvalidAuthority);
 
         // Signer seeds for the update authority
         let collection_key = self.collection.key();
