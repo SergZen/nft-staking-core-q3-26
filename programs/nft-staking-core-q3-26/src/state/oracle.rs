@@ -14,18 +14,21 @@ pub struct Oracle {
 
 impl Oracle {
     pub fn is_allowed_transfer(unix_timestamp: i64) -> bool {
-        let seconds_of_day = (unix_timestamp % SECONDS_PER_DAY) as u32;
+        let seconds_of_day = unix_timestamp.rem_euclid(SECONDS_PER_DAY as i64) as u32;
         
         (TRANSFER_WINDOW_START..TRANSFER_WINDOW_END).contains(&seconds_of_day)
     }
 
     pub fn is_boundary_time(unix_timestamp: i64) -> bool {
-        let seconds_since_midnight = unix_timestamp % SECONDS_PER_DAY;
-        (seconds_since_midnight >= TRANSFER_WINDOW_START as i64 
-            && seconds_since_midnight < TRANSFER_WINDOW_START as i64 + BOUNDARY_TOLERANCE)
-        || (seconds_since_midnight >= TRANSFER_WINDOW_END as i64 
-            && seconds_since_midnight < TRANSFER_WINDOW_END as i64 + BOUNDARY_TOLERANCE)
-    }
+        let seconds_since_midnight = unix_timestamp.rem_euclid(SECONDS_PER_DAY as i64);
+        
+        let start = TRANSFER_WINDOW_START as i64;
+        let end = TRANSFER_WINDOW_END as i64;
+        let tolerance = BOUNDARY_TOLERANCE as i64;
+
+        (start..start.saturating_add(tolerance)).contains(&seconds_since_midnight)
+            || (end..end.saturating_add(tolerance)).contains(&seconds_since_midnight)
+    } 
 
     pub fn transfer_validation(unix_timestamp: i64) -> ExternalValidationResult {
         if Self::is_allowed_transfer(unix_timestamp) {
